@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import numpy as np # NumPy is needed for pitch calculation
 import freesound
 import librosa
 import pandas as pd
@@ -77,6 +78,12 @@ for raw_path in tqdm(downloaded_sound_paths, desc="Processing audio"):
         if len(y_trimmed) == 0:
             continue
 
+        # Estimate pitch using the pYIN algorithm
+        f0, voiced_flag, voiced_probs = librosa.pyin(y_trimmed, fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
+        
+        # Calculate the average pitch, ignoring unvoiced frames (where f0 is NaN)
+        average_pitch_hz = np.nanmean(f0) if np.any(voiced_flag) else 0
+
         # Save the processed audio as a consistent .wav file
         processed_filename = os.path.splitext(os.path.basename(raw_path))[0] + ".wav"
         processed_path = os.path.join(PROCESSED_AUDIO_DIR, processed_filename)
@@ -90,6 +97,7 @@ for raw_path in tqdm(downloaded_sound_paths, desc="Processing audio"):
             "filename": processed_filename,
             "path": processed_path,
             "duration_seconds": duration,
+            "average_pitch_hz": average_pitch_hz
         })
     except Exception as e:
         print(f"Could not process file {raw_path}: {e}")
