@@ -6,7 +6,7 @@ Here is a practical, step-by-step implementation plan to build the MeowCensor pr
 
 **Goal:** Create the foundational dataset of clean, analyzed meow sounds. This entire phase is a one-time, offline process.
 
-**Step 1.1: Setup and API Access**
+**Step 1.1: Setup and API Access (Completed)**
 * **Action:** Create a Freesound.org account and get an API key.
 * **Tools:** `Python`, `requests` library.
 * **Outcome:** You can programmatically access Freesound's data.
@@ -30,10 +30,97 @@ Here is a practical, step-by-step implementation plan to build the MeowCensor pr
 
 **Goal:** Implement and test each agent's core logic independently.
 
-**Step 2.1: Transcriber Agent**
-* **Action:** Create a Python function `transcribe_audio(file_path)` that takes an audio file and uses OpenAI Whisper to return a list of words with their timestamps.
-* **Tools:** `openai-whisper` library. You can start with the tiny base model for speed.
-* **Testing:** Test this function with a sample audio file to ensure you get accurate, word-level timestamps.
+**Goal:** Implement and test each agent's core logic independently.
+
+**Step 2.1: Transcriber Agent (Completed)**
+* **Goal:** Create a self-contained Python module that accurately transcribes an audio file, providing word-level timestamps for every word spoken.
+* **Environment Setup:**
+    1.  **Install FFmpeg:** This is a system dependency for Whisper. It can be installed with `brew install ffmpeg` (macOS), `choco install ffmpeg` (Windows), or `sudo apt install ffmpeg` (Debian/Ubuntu).
+    2.  **Install Python Library:** Run `pip install openai-whisper`.
+* **Final Code (`transcriber_agent.py`):**
+    ```python
+    # MeowCensor Project
+    # Phase 2, Step 2.1: Transcriber Agent
+    # This script is responsible for transcribing audio files and providing word-level timestamps.
+
+    # --- 1. IMPORTS & SETUP ---
+    import whisper
+    import os
+
+    # --- 2. MODEL INITIALIZATION ---
+    # Load the Whisper model once when the script starts. This is a performance optimization
+    # to avoid reloading the model every time the transcription function is called.
+    # The 'base' model offers a good balance between speed and accuracy for this project.
+    print("Initializing the Transcriber Agent...")
+    try:
+        model = whisper.load_model("base")
+        print("Whisper 'base' model loaded successfully. Agent is ready. 🚀")
+    except Exception as e:
+        print(f"Fatal Error: Could not load Whisper model. {e}")
+        model = None
+
+    # --- 3. CORE TRANSCRIPTION LOGIC ---
+    def transcribe_audio(file_path: str) -> list[dict]:
+        """
+        Transcribes an audio file using Whisper to generate word-level timestamps.
+
+        Args:
+            file_path (str): The full path to the audio file (e.g., .mp3, .wav).
+
+        Returns:
+            list[dict]: A list of dictionaries, where each dictionary represents a word
+                        and contains {'word': str, 'start': float, 'end': float}.
+                        Returns an empty list if the model isn't loaded or an error occurs.
+        """
+        if not model:
+            print("Whisper model is not available. Cannot transcribe.")
+            return []
+        
+        if not os.path.exists(file_path):
+            print(f"Error: Audio file not found at '{file_path}'")
+            return []
+
+        print(f"Starting transcription for: {os.path.basename(file_path)}...")
+        
+        try:
+            result = model.transcribe(file_path, word_timestamps=True)
+            
+            word_list = []
+            for segment in result['segments']:
+                for word_data in segment['words']:
+                    word_list.append({
+                        'word': word_data['word'].strip(),
+                        'start': word_data['start'],
+                        'end': word_data['end']
+                    })
+                    
+            print("Transcription completed successfully.")
+            return word_list
+
+        except Exception as e:
+            print(f"An unexpected error occurred during transcription: {e}")
+            return []
+
+    # --- 4. DIRECT EXECUTION FOR TESTING ---
+    if __name__ == '__main__':
+        sample_file_to_test = "test.mp3" 
+        
+        print("\n--- [Running Standalone Test] ---")
+        if os.path.exists(sample_file_to_test):
+            transcript = transcribe_audio(sample_file_to_test)
+            
+            if transcript:
+                print("\n✅ Test Passed. Transcription Result (first 15 words):")
+                for item in transcript[:15]:
+                    print(f"  - Word: \"{item['word']:<15}\" Start: {item['start']:.2f}s, End: {item['end']:.2f}s")
+            else:
+                print("\n❌ Test Failed. Transcription returned an empty list.")
+        else:
+            print(f"\n🟡 Test Skipped. Please create a file named '{sample_file_to_test}' to run the test.")
+
+    ```
+* **Testing:** Test the agent by running `python transcriber_agent.py` with a sample audio file named `test.mp3` in the same directory. Verify that it prints accurate, word-level timestamps.
+
 
 **Step 2.2: Censor Agent**
 * **Action:** Create a function `find_swear_words(transcript)` that takes the timestamped list from the previous step. It should format this data into a string, send it to an LLM (like Gemini via its API), and parse the response to get the start and end times of words to be censored.
