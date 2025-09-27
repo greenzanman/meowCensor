@@ -11,17 +11,18 @@ Here is a practical, step-by-step implementation plan to build the MeowCensor pr
 * **Tools:** `Python`, `requests` library.
 * **Outcome:** You can programmatically access Freesound's data.
 
-**Step 1.2: Script for Downloading and Processing**
-* **Action:** Write a Python script (`prepare_library.py`) that loops through search results for "meow," "cat," etc.
-* **Inside the loop, for each sound:**
-    1.  **Download** the audio file into a `./meow_library/` folder.
-    2.  **Load** the audio with `librosa.load()`.
-    3.  **Trim Silence** using `librosa.effects.trim()`.
-    4.  **Analyze** the trimmed audio to get its `duration` and average `pitch`.
-    5.  **Save** the trimmed audio back to the file, overwriting the original.
-    6.  **Store Metadata** (filename, duration, pitch) in a list.
-* **Tools:** `freesound-python`, `librosa`, `pandas`, `soundfile`.
-* **Outcome:** A folder of trimmed audio files and a `meow_database.csv` catalog.
+* **Phase 1: Build and Prepare the Meow Library 📚**
+    * **Step 1.2: Script for Downloading and Processing**
+        * **Action:** Write a Python script (`prepare_library.py`) that searches Freesound for suitable audio.
+        * **Inside the script, for each sound:**
+            1.  **Download** the audio **preview** file (e.g., `.mp3`) into a `./meow_library/raw/` folder.
+            2.  **Load** the raw audio file with `librosa.load()`.
+            3.  **Trim Silence** from the start and end using `librosa.effects.trim()`.
+            4.  **Analyze** the trimmed audio to get its `duration` and average `pitch` (`librosa.pyin`).
+            5.  **Save** the processed audio as a new `.wav` file in the `./meow_library/processed/` directory.
+            6.  **Store Metadata** (new filename, path, duration, pitch) in a list.
+        * **Tools:** `freesound`, `librosa`, `pandas`, `soundfile`, `numpy`.
+        * **Outcome:** Two folders (`/raw` and `/processed` audio) and a `meow_database.csv` catalog ready for use.
 
 ***
 
