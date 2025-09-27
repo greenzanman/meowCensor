@@ -208,3 +208,22 @@ __marimo__/
 
 # Temp files from test_audio
 temp.wav
+
+
+# Secrets
+.env
+
+# Generated Data & Media
+/meow_library/
+/meow_database.csv
+
+# Temporary frontend files
+/temp_files/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+*.egg-info/
