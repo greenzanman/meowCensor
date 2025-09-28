@@ -7,7 +7,7 @@ from google.adk.sessions import InMemorySessionService
 
 # --- API Key ---
 # better to set this as an environment variable
-os.environ["GEMINI_API_KEY"] = "AIzaSyDDgzNb_dHv3J-d7eIIA8sqIsVNWFZm5lg"
+os.environ["GEMINI_API_KEY"] = "AIzaSyAhtxPiQ9STaFOmPAebEVryFauRTLlEidw"
 
 # 1. Define a simple agent to find curse words
 censor_agent = LlmAgent(
@@ -40,9 +40,9 @@ async def run_test():
     events1 = runner.run_async(
         user_id="test_user",
         session_id=session_1.id, # Use the real ID from the created session
-        new_message=types.Content(parts=[types.Part(text="This is a darn sentence.")])
+        new_message=types.Content(parts=[types.Part(text="This is a sentence.")])
     )
-    print("Input: 'This is a bitch sentence.' -> Expected: True")
+    print("Input: 'This is a sentence.' -> Expected: True")
     async for event in events1:
         if event.is_final_response():
             print(f"Agent Output: {event.content.parts[0].text.strip()}")

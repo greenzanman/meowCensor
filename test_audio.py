@@ -1,21 +1,14 @@
 import speech_recognition as sr
 from pydub import AudioSegment
 import os
+import subprocess
+import sys
 
-# Name of your audio file
-AUDIO_FILE = "test.mp3" # Change this to your file name
-
-# Convert mp3 to wav if needed (pydub requires ffmpeg for this)
-if AUDIO_FILE.endswith(".mp3"):
-    sound = AudioSegment.from_mp3(AUDIO_FILE)
-    wav_file = "temp.wav"
-    sound.export(wav_file, format="wav")
-else:
-    wav_file = AUDIO_FILE
+AUDIO_FILE = 'temp_audio/audio.wav'
 
 # Use the SpeechRecognition library
 r = sr.Recognizer()
-with sr.AudioFile(wav_file) as source:
+with sr.AudioFile(AUDIO_FILE) as source:
     print("Listening to audio file...")
     audio = r.record(source) # Read the entire audio file
 
@@ -28,6 +21,7 @@ with sr.AudioFile(wav_file) as source:
     except sr.RequestError as e:
         print(f"Could not request results from Google Speech Recognition service; {e}")
 
-# Clean up temp file
+# Clean up files
 if os.path.exists("temp.wav"):
     os.remove("temp.wav")
+    
