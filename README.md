@@ -1,4 +1,4 @@
-Of course. Here is a complete, step-by-step guide you can send to your friend. This covers everything they need to do on a fresh Windows machine.
+
 
 -----
 
