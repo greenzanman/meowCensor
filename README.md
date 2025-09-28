@@ -1,118 +1,88 @@
-if repo is public then i should make the key an env var
+🐱 MeowCensor
+A Python application that automatically replaces profanity in audio files with cat "meow" sounds. The system uses a multi-agent AI pipeline to transcribe audio, identify naughty words, and perform audio surgery to replace them with dynamically volume-matched meows.
 
+It features a friendly web UI for easy use and a command-line interface for scripting.
 
------
+Features
+Dual Input: Upload an existing audio file (.mp3, .wav) or record audio directly in the browser.
 
-## Complete Setup Guide for Your Teammate (Windows)
+AI-Powered Censorship: Utilizes the Google Gemini model to intelligently identify a wide range of profane words, not just a fixed keyword list.
 
-Welcome to the team\! Follow these steps to get the project running on your laptop. We'll use a package manager called Chocolatey to make installing tools easy.
+Natural Sound Replacement: Each meow is selected from a library based on duration and is dynamically adjusted to match the peak volume of the word it's replacing, ensuring a seamless and natural blend.
 
------
+Web & Command-Line Interface: Use the simple Streamlit web app for ease of use or run the script from the command line for automation.
 
-### Step 1: Install Chocolatey Package Manager
+How It Works
+The application operates as a three-stage pipeline:
 
-This tool lets you install developer software from the command line, which is much faster than finding and running individual installers.
+Transcriber Agent: openai-whisper transcribes the source audio, generating word-level timestamps.
 
-1.  Click the **Start Menu**, type `PowerShell`, right-click on "Windows PowerShell", and select **Run as Administrator**.
+Censor Agent: The transcript is sent to a Google Gemini model via the Agent Development Kit (google-adk) to identify the timestamps of profane words.
 
-2.  Copy and paste the entire command below into the blue PowerShell window and press Enter.
+Audio Surgeon Agent: pydub slices the original audio, finds the best-fitting meow from a pre-analyzed library, normalizes its volume, time-stretches it, and splices it into the final audio track.
 
-    ```powershell
-    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-    ```
+Setup and Installation
+Follow these steps to get the project running on your local machine.
 
-3.  Wait for it to finish. Once it's done, **close the admin PowerShell window**.
+1. Prerequisites
+Python (v3.10 or higher)
 
------
+Git
 
-### Step 2: Install All Your Tools
+FFmpeg: This is required by pydub for audio processing. You can download it from ffmpeg.org or install it with a package manager like Chocolatey (choco install ffmpeg) on Windows.
 
-Now we'll use Chocolatey to install Python, Node.js, Git, and FFmpeg all at once.
+2. Clone the Repository
+git clone <your-repository-url>
+cd meowCensor
 
-1.  Open a **new, regular** PowerShell window (you don't need to be an administrator for this part).
+3. Set Up the Virtual Environment
+This creates an isolated environment for the project's Python packages.
 
-2.  Copy and paste the following command to install everything and press Enter.
+# Create the virtual environment
+python -m venv venv
 
-    ```powershell
-    choco install python nodejs-lts git ffmpeg -y
-    ```
+# Activate it (you must do this every time you open a new terminal)
+./venv/Scripts/activate
 
-3.  This will take a few minutes. Grab a coffee\! ☕
+Your terminal prompt should now start with (venv).
 
-4.  Once it's finished, **close and reopen** your PowerShell window to make sure all the new tools are available in your system's PATH.
+4. Install Dependencies
+Install all the required Python packages using the requirements.txt file.
 
------
+pip install -r requirements.txt
 
-### Step 3: Get the Project Code
+5. Configure API Keys
+The project requires API keys for Freesound (to build the meow library) and Google Gemini (for the Censor Agent).
 
-Now you'll download the project code from GitHub.
+Create a file named .env in the root of the project directory (meowCensor/.env).
 
-1.  Your teammate needs to add you as a **collaborator** on the GitHub repository. You'll get an email invitation—make sure to accept it.
+Add your API keys to this file. Do not include quotes.
 
-2.  In your PowerShell terminal, navigate to where you want to store the project (e.g., `cd C:\dev`).
+FREESOUND_API_KEY="cRJ9PFrxQ6R4U6TIIvUlbSAP9cqW31cVSAQoz8GL"
+GEMINI_API_KEY="AIzaSyDDgzNb_dHv3J-d7eIIA8sqIsVNWFZm5lg"
 
-3.  Run the `git clone` command with the repository URL (get this from the green "Code" button on the GitHub page).
+(Note: You should generate your own keys for a real application.)
 
-    ```powershell
-    git clone https://github.com/greenzanman/meowCensor.git
-    ```
+6. Build the Meow Library
+This is a one-time step. Run the prepare-library.py script to download and process the meow sounds from Freesound.org.
 
-4.  Navigate into the newly created project folder:
+python prepare-library.py
 
-    ```powershell
-    cd meow-censor
-    ```
+This will create the meow_library folder and the meow_database.csv file.
 
------
+Usage
+You can run the application in two ways:
 
-### Step 4: Set Up the Python Environment
+1. Web Interface (Streamlit)
+Launch the web application with the following command:
 
-This step creates an isolated environment for our project's Python packages.
+streamlit run app.py
 
-1.  **Create the virtual environment:**
-    ```powershell
-    python -m venv venv
-    ```
-2.  **Activate it.** You'll need to do this every time you open a new terminal to work on the project.
-    ```powershell
-    .\venv\Scripts\activate
-    ```
-    Your prompt should now start with `(venv)`.
-3.  **Install all the Python packages** from the `requirements.txt` file in the project:
-    ```powershell
-    pip install -r requirements.txt
-    ```
+This will open the MeowCensor UI in your web browser.
 
------
+2. Command-Line Interface (CLI)
+To process a file directly from your terminal:
 
-### Step 5: Configure Your API Key
+python app.py your_audio_file.mp3
 
-The final step is to add your personal Google AI API key.
-
-1.  Go to the **[Google AI Studio](https://aistudio.google.com/)** website and get your own API key.
-2.  Open the `test_agent.py` file in a code editor.
-3.  Find the line `os.environ["GEMINI_API_KEY"] = "YOUR_API_KEY"` and replace `"YOUR_API_KEY"` with the key you just generated. Save the file.
-
------
-
-### Testing Your Setup ✅
-
-You're all done\! To make sure everything works, run the two test scripts from your terminal (make sure your `(venv)` is still active).
-
-1.  **Test the AI agent:**
-
-    ```powershell
-    python test_agent.py
-    ```
-
-    This should connect to the API and print "True" and "False".
-
-2.  **Test the audio processing:**
-
-    ```powershell
-    python test_audio.py
-    ```
-
-    This should transcribe the text from the sample audio file.
-
-If both scripts run without errors, your setup is perfect. Welcome to the hackathon\!
+Replace your_audio_file.mp3 with the path to the audio file you want to censor. The output file will be saved in the root directory.
