@@ -28,12 +28,7 @@ def set_background_image(image_path):
 st.html(''' 
     <html>
     <head>
-    <style>
-        @font-face {
-          font-family: 'Mouly';
-          src: url('Mouly_D.woff2') format('woff2'),
-        }
-        
+    <style>        
         h1 {text-align: center;
             font-family: cursive;
             font-size: 40px;
